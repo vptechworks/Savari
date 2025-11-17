@@ -1,6 +1,7 @@
 import React from "react";
 import { View , Text, StyleSheet, TouchableOpacity} from "react-native";
 import { useForm } from "react-hook-form";
+import { useDetail } from "../../store/DetailsContext";
 import FormInput from "../../components/Form";
 import OTPInput from "../../components/OTPInput";
 import CustomButton from "../../components/Button";
@@ -12,12 +13,30 @@ type OTPScreenProps = {
 
 const OTPScreen: React.FC<OTPScreenProps> = ({ onVarifySuccess }) => {
     const { control, handleSubmit } = useForm();
+    const { mobileNumber } = useDetail();
 
-    const onSubmit = (data: any) => {
+    const onSubmit = async (data: any) => {
     console.log("OTP:", data);
+    const {otp} = data;
     // Call API here
-    onVarifySuccess(); // call parent navigation
-    AsyncStorage.setItem("userToken","true")
+    try {
+      const response = await fetch("http://10.0.2.2:8000/api/otp/verifyOtp",{
+        method: "Post",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({mobileNumber,otp})
+      });
+
+      const result = await response.json();
+      console.log(result);
+      if(result.success){
+        onVarifySuccess(); // call parent navigation
+        AsyncStorage.setItem("userToken","true")
+      }
+    } catch (error) {
+      console.log("error during otp verification", error)
+    }
   };
   
   return (

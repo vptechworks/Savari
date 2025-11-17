@@ -46,6 +46,12 @@ const HomeScreen = ({navigation} : any) => {
       keyboardVerticalOffset={Platform.OS === "ios" ? 70 : 0}  // adjust for header height if needed
     >
       <View style={styles.container}>
+        {!location && (
+          <TouchableOpacity onPress={() => console.log("go to setting")} style={styles.locationContainer}>
+            <Text style={styles.locationText}>
+              Please Open your Location , to get the ride 
+            </Text>
+          </TouchableOpacity>)}
         
           <Image
                   source={require("../../assets/logo/logo3.png")} // <-- replace with your image
@@ -83,16 +89,8 @@ const HomeScreen = ({navigation} : any) => {
         </TouchableOpacity>
         )
         }
-        {!location && (
-          <View>
-            <Text>
-              Open your Location
-            </Text>
-          </View>)}
       </View>
     </KeyboardAvoidingView>
-    
-    
   );
 };
 
@@ -102,6 +100,15 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
     backgroundColor: "#fff",
+  },
+  locationContainer :{
+    backgroundColor: "red",
+    alignItems: "center"
+  },
+  locationText: {
+    fontSize : 16,
+    fontFamily : "ubuntu"
+
   },
   searchContainer: {
     height: 55,

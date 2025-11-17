@@ -1,9 +1,10 @@
 // screens/SignupScreen.tsx
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { View , Text, StyleSheet , TouchableOpacity} from "react-native";
 import { useForm } from "react-hook-form";
 import FormInput from "../../components/Form";
 import CustomButton from "../../components/Button";
+import { useDetail } from "../../store/DetailsContext";
 import Svg,{Path} from "react-native-svg";
 type SignupProps = {
   handleOtpPage : (data: string) => void;
@@ -12,11 +13,41 @@ type SignupProps = {
 
 const Signup: React.FC<SignupProps> = ({handleOtpPage}) => {
   const { control, handleSubmit } = useForm();
+  const {setMobileNumber} = useDetail();
 
-  const onSubmit = (data: any) => {
-    console.log("Signup data:", data);
-    handleOtpPage("otp")
-    // Call API here
+  const onSubmit = async (data: any) => { 
+    let {name,phoneNumber} = data;
+    try {
+      const response = await fetch("http://10.0.2.2:8000/api/user/signup",{
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({userName: name, mobileNumber : phoneNumber}),
+      });
+
+      const result = await response.json();
+      const recivedNumber = result.data.mobileNumber
+      console.log(recivedNumber);
+      const succsess = result.success;
+      if(succsess){
+        setMobileNumber(recivedNumber)
+        handleOtpPage("otp");
+        try {
+          await fetch("http://10.0.2.2:8000/api/otp/sendOtp",{
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({mobileNumber : recivedNumber}),
+      });
+        } catch (error) {
+          console.error("error while otp: ",error);
+        }
+      }
+    } catch (error) {
+      console.error("error while signUp: ", error)
+    }
   };
 
   return (

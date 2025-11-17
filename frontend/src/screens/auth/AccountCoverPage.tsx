@@ -33,6 +33,7 @@ const AccountCoverPage: React.FC = () => {
 
 
   const [page, setPage] = useState<string>(pageType);
+  const [mobileNumber, setMobileNumber] = useState<string>()
 
   // ✅ Proper function handlers
   const handleSignupPage = () => {
@@ -44,7 +45,8 @@ const AccountCoverPage: React.FC = () => {
   };
 
   const handleOtpPage = (data: string) => {
-    setPage(data);
+    setPage("otp");
+    setMobileNumber(data);
   }
 
   return (

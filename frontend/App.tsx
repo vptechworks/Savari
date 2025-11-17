@@ -4,7 +4,7 @@ import RNBootSplash from "react-native-bootsplash";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { NavigationContainer } from "@react-navigation/native";
-
+import { DetailProvider } from "./src/store/DetailsContext"
 //screens
 import SplashScreen from './src/screens/onboarding/SplashScreen';
 import OnboardingScreen from './src/screens/onboarding/OnboardingScreen';
@@ -99,12 +99,19 @@ useEffect(() => {
     //     component={SearchBar}  />
     //   </Stack.Navigator>
     // </NavigationContainer>
+    <DetailProvider>
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {loading ? <Stack.Screen name="Splash" component={SplashScreen} /> : null}
         {firstLaunch ? (
           // 👉 First time install
-          <Stack.Screen name="Onboarding" component={OnboardingScreen} />
+          <>
+            <Stack.Screen name="Onboarding" component={OnboardingScreen} />
+            <Stack.Screen name="Location" component={Location} />
+            <Stack.Screen name="Welcome" component={Welcome} />
+            <Stack.Screen name="AccountCoverPage" component={AccountCoverPage} />
+            <Stack.Screen name="HomeControler" component={HomeControler} />
+          </>
         ) : isLoggedIn ? (
           // 👉 Already logged in
           <>
@@ -122,6 +129,7 @@ useEffect(() => {
         )}
       </Stack.Navigator>
     </NavigationContainer>
+    </DetailProvider>
   );
 };
 
