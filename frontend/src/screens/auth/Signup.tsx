@@ -6,6 +6,7 @@ import FormInput from "../../components/Form";
 import CustomButton from "../../components/Button";
 import { useDetail } from "../../store/DetailsContext";
 import Svg,{Path} from "react-native-svg";
+import Toast from "react-native-toast-message";
 type SignupProps = {
   handleOtpPage : (data: string) => void;
 };
@@ -16,7 +17,8 @@ const Signup: React.FC<SignupProps> = ({handleOtpPage}) => {
   const {setMobileNumber} = useDetail();
 
   const onSubmit = async (data: any) => { 
-    let {name,phoneNumber} = data;
+    const {name,phoneNumber} = data;
+
     try {
       const response = await fetch("http://10.0.2.2:8000/api/user/signup",{
         method: "POST",
@@ -27,26 +29,61 @@ const Signup: React.FC<SignupProps> = ({handleOtpPage}) => {
       });
 
       const result = await response.json();
+      
+      if(!response.ok){
+        console.log("signup error :",result.message)
+        Toast.show({
+          type: "error",
+          text1: "signup error",
+          text2: result.message || "somthing went wrong"
+        })
+        return
+      }
+      
+      console.log("signup sucessfull",result.message)
+
       const recivedNumber = result.data.mobileNumber
-      console.log(recivedNumber);
-      const succsess = result.success;
-      if(succsess){
-        setMobileNumber(recivedNumber)
-        handleOtpPage("otp");
-        try {
-          await fetch("http://10.0.2.2:8000/api/otp/sendOtp",{
+      setMobileNumber(recivedNumber)
+      handleOtpPage("otp");
+
+      // send otp request 
+
+      const otpResponse = await fetch("http://10.0.2.2:8000/api/otp/sendOtp",{
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({mobileNumber : recivedNumber}),
       });
-        } catch (error) {
-          console.error("error while otp: ",error);
-        }
+
+      const otpResult = await otpResponse.json();
+      console.log(otpResult)
+      console.log(otpResponse.ok);
+      
+      if(!otpResponse.ok){
+        console.log("otp error: ",otpResult.message)
+        Toast.show({
+          type: "error",
+          text1: "otp error",
+          text2: otpResult.message || "somthing went wrong"
+        })
+        return;
       }
+
+      console.log("otp send sucessfully",otpResult.message)
+      Toast.show({
+        type: "success",
+        text1: "OTP Send",
+        text2: otpResult.message
+      })
+
     } catch (error) {
-      console.error("error while signUp: ", error)
+      console.error("network error", error)
+      Toast.show({
+          type: "error",
+          text1: "network error",
+          text2: "somthing went wrong"
+        })
     }
   };
 

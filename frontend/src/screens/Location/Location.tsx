@@ -18,7 +18,7 @@ import Svg , {Path} from "react-native-svg";
 
 type RootStackParamList = {
   LocationPermission: undefined;
-  Welcome: undefined;
+  AuthStack: undefined;
 };
 
 type LocationPermissionScreenNavigationProp = StackNavigationProp<
@@ -45,7 +45,7 @@ const LocationPermissionScreen = () => {
       Geolocation.getCurrentPosition(
         (position) => {
           console.log("Location:", position);
-            navigation.replace("Welcome"); // ✅ redirect
+            navigation.replace("AuthStack"); // ✅ redirect
         },
         (error) => {
           console.log("Location error:", error.message);
@@ -121,7 +121,7 @@ const LocationPermissionScreen = () => {
           <Text style={styles.buttonText}>Use my location</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => navigation.replace("Welcome")} style={styles.skipBtnText}>
+        <TouchableOpacity onPress={() => navigation.replace("AuthStack")} style={styles.skipBtnText}>
           <Text style={styles.skipText}>Skip for now</Text>
         </TouchableOpacity>
       </View>

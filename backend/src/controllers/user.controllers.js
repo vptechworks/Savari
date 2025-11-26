@@ -37,6 +37,11 @@ async function signupUser(req,res,next){
     )
   } catch (error) {
     console.log("error in signup backend ",error)
+    return res.status(error.statusCode).json({
+      statusCode: error.statusCode,
+      success : error.success,
+      message: error.message
+    })
   }
 }
 
@@ -60,8 +65,30 @@ async function loginUser(req,res,next){
 
   } catch (error) {
     console.error("error while login: ",error);
+    return res.status(error.statusCode).json({
+      statusCode: error.statusCode,
+      success: error.success,
+      message: error.message  
+    })
   }
 }
+
+// async function signoutUser(req,res,next){
+//   const { mobileNumber } = req.body;
+
+//   if(!mobileNumber){
+//     throw new ApiError(404,"Mobile Number required");
+//   }
+
+//   const user = await User.findOne({mobileNumber})
+
+//   if(!user){
+//     throw new ApiError(404,"something went wrong ")
+//   }
+
+  
+
+// }
 
 export {
   loginUser,

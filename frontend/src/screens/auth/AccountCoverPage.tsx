@@ -17,7 +17,7 @@ import Svg ,{Path} from "react-native-svg";
 
 type RootStackParamList = {
   AccountCover: { pageType: string };
-  HomeControler: undefined;
+  AppStack: undefined;
   signup: undefined;
   signin: undefined;
   otp: { phone?: string };
@@ -107,12 +107,6 @@ const AccountCoverPage: React.FC = () => {
            {page === "otp" ?  <Text style={[styles.title ,{color: "#d0a825"}]}>Phone Verification</Text> : null}
           </View>
           {page === "otp" ? <OTPScreen 
-          onVarifySuccess = {() => {
-            navigation.reset({
-  index: 0,
-  routes: [{ name: "HomeControler" }],
-});
-          }}
           /> :  page === "signup" ? <Signup handleOtpPage={handleOtpPage} /> : <Signin handleOtpPage={handleOtpPage}/>}
         </View>
       </View>

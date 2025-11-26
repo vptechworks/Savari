@@ -6,11 +6,9 @@ import { useFocusEffect } from '@react-navigation/native';
 import SearchBar from "../../components/SearchBar";
 import { LocationComponent } from "../../components/LocationComponent";
 
-
-
 const HomeScreen = ({navigation} : any) => {
   const [onSearch,setOnSearch] = useState(false)
-  const [location , setLocation] = useState(false)
+  const [locationGranted , setLocationGranted] = useState(false)
   
   useFocusEffect(
     useCallback(() => {
@@ -18,24 +16,31 @@ const HomeScreen = ({navigation} : any) => {
     },[])
   )
 
+  const handleLocation = async () =>{
+    try {
+      const hasLocation = await LocationComponent();
+      console.log("haslocation",hasLocation);
+      if(hasLocation){
+        setLocationGranted(true)
+    }
+    } catch (error) {
+      console.log("error seting location",error )
+    }
+  }
+
   useEffect(() => {
     if(onSearch){
       navigation.navigate("SearchBar");
     }
-
     (async () => {
-      const isOn = await LocationComponent();
-      if (isOn) {
-        setLocation(true);
-        console.log("🚀 Redirect to Welcome/Login screen here");
-      }
+      await handleLocation();
     })();
-  },[onSearch,navigation])
+  },[])
 
   const handleOnSearch = () => {
     setOnSearch(true);
   }
-  console.log(onSearch);
+  // console.log(onSearch);
   
 
 
@@ -45,14 +50,17 @@ const HomeScreen = ({navigation} : any) => {
       behavior={Platform.OS === "ios" ? "padding" : undefined} // only affects iOS
       keyboardVerticalOffset={Platform.OS === "ios" ? 70 : 0}  // adjust for header height if needed
     >
-      <View style={styles.container}>
-        {!location && (
-          <TouchableOpacity onPress={() => console.log("go to setting")} style={styles.locationContainer}>
+        {!locationGranted && (
+          <TouchableOpacity onPress={handleLocation} style={styles.locationContainer}>
+            <Text style={styles.locationHeading}>
+              We could not find you
+            </Text>
             <Text style={styles.locationText}>
-              Please Open your Location , to get the ride 
+              Tap to turn on Location
             </Text>
           </TouchableOpacity>)}
         
+      <View style={styles.container}>
           <Image
                   source={require("../../assets/logo/logo3.png")} // <-- replace with your image
                   // style={styles.image}
@@ -97,19 +105,37 @@ const HomeScreen = ({navigation} : any) => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    padding: 16,
-    backgroundColor: "#fff",
-  },
-  locationContainer :{
-    backgroundColor: "red",
-    alignItems: "center"
-  },
-  locationText: {
-    fontSize : 16,
-    fontFamily : "ubuntu"
+  flex: 1,
+  padding: 16,
+  backgroundColor: "#fff",
+},
+locationContainer: {
+  height: 80,
+  backgroundColor: "#d0a825",
+  alignItems: "center",
+  justifyContent: "center",
 
-  },
+  // Shadow / Elevation
+  elevation: 8,
+  shadowColor: "#000",
+  shadowOpacity: 0.2,
+  shadowRadius: 6,
+  shadowOffset: { width: 0, height: 3 },
+},
+
+locationHeading: {
+  fontSize: 18,
+  fontFamily: "ubuntu",
+  fontWeight: "700",
+  letterSpacing: 0.5,
+  color: "#000",
+},
+
+locationText: {
+  fontSize: 14,
+  fontWeight: "500",
+  color: "#333",
+},
   searchContainer: {
     height: 55,
     backgroundColor: "#d0a825",

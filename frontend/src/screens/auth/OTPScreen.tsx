@@ -6,14 +6,52 @@ import FormInput from "../../components/Form";
 import OTPInput from "../../components/OTPInput";
 import CustomButton from "../../components/Button";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useAuth } from "../../store/AuthContext";
+import Toast from "react-native-toast-message";
 
-type OTPScreenProps = {
-  onVarifySuccess: () => void; // callback from parent
-};
-
-const OTPScreen: React.FC<OTPScreenProps> = ({ onVarifySuccess }) => {
+const OTPScreen = () => {
     const { control, handleSubmit } = useForm();
     const { mobileNumber } = useDetail();
+    const {login} = useAuth()
+
+    const resendOTP = async (data: any) => {
+      try {
+        const response = await fetch("http://10.0.2.2:8000/api/otp/sendOtp",{
+        method: "Post",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({mobileNumber})
+      });
+
+      const result = await response.json();
+      console.log(result)
+
+      if(!response.ok){
+        console.log(result.message);
+        Toast.show({
+          type: "error",
+          text1: "limit reached",
+          text2: result.message || "something went wrong"
+        })
+        return;
+      }
+
+      Toast.show({
+        type: "success",
+        text1: "OTP send sucessfully",
+        text2: result.message
+      })
+      
+      } catch (error) {
+        console.log("otp resending error" , error )
+        Toast.show({
+          type: "error",
+          text1: "Network error",
+          text2: "somthing went wrong"
+        })
+      }
+    } 
 
     const onSubmit = async (data: any) => {
     console.log("OTP:", data);
@@ -30,12 +68,33 @@ const OTPScreen: React.FC<OTPScreenProps> = ({ onVarifySuccess }) => {
 
       const result = await response.json();
       console.log(result);
-      if(result.success){
-        onVarifySuccess(); // call parent navigation
-        AsyncStorage.setItem("userToken","true")
+
+      if(!response.ok){
+        console.log("otp verifiacation error:",result.message)
+        Toast.show({
+              type: "error",
+              text1: "Invalid OTP",
+              text2: result.message || "somthing went wrong"
+            })
+        return;
       }
+
+      await login(result.other)
+
+      Toast.show({
+              type: "success",
+              text1: result.message,
+              text2: "user sucessfully registered"
+            })
+      console.log("user sucessfully registered",result.message)
+  
     } catch (error) {
-      console.log("error during otp verification", error)
+      console.log("network error", error)
+      Toast.show({
+                type: "error",
+                text1: "network error",
+                text2: "somthing went wrong"
+              })
     }
   };
   
@@ -56,7 +115,7 @@ const OTPScreen: React.FC<OTPScreenProps> = ({ onVarifySuccess }) => {
       />
       <View style={styles.otpResendContainer}><Text style={styles.otpTitle}>Didn't receive code?</Text>
       <TouchableOpacity 
-      onPress={() => (console.log("otp send to your mobile"))}>
+      onPress={resendOTP}>
         <Text style={[styles.otpTitle,{color:'#d0a825'}]}> Resend OTP</Text>
       </TouchableOpacity>
       </View>

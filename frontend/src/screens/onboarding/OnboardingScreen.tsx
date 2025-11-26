@@ -4,6 +4,7 @@ import { View, Text, TouchableOpacity, Dimensions, StyleSheet , Image} from "rea
 import PagerView from "react-native-pager-view";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Svg ,{Path} from "react-native-svg";
+import { useAuth } from "../../store/AuthContext";
 const { width } = Dimensions.get("window");
 
 const pages = [
@@ -30,6 +31,7 @@ const pages = [
 const OnboardingScreen = ({ navigation }: any) => {
   const pagerRef = useRef<PagerView>(null);
   const [page, setPage] = useState(0);
+  const {onboarded} = useAuth();
 
   const handleNext = () => {
     if (page < pages.length - 1) {
@@ -39,10 +41,10 @@ const OnboardingScreen = ({ navigation }: any) => {
     }
   };
 
-  const finishOnboarding = () => {
+  const finishOnboarding = async () => {
     // storage.set("hasOnboarded", "true");
-    AsyncStorage.setItem("hasOnboarded", "true");
     navigation.replace("Location");
+    await onboarded();
   };
 
   return (
